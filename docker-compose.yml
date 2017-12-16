@@ -1,0 +1,28 @@
+version: '2.1'
+
+services:
+
+  www:
+    image: ${IMAGE}:${IMAGE_VER}
+    restart: always
+    networks:
+      - lan
+    labels:
+      - "traefik.enable=true"
+      - "traefik.frontend.rule=Host:${APP_SITE}"
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ../../data/redmine:/usr/src/redmine/files
+    environment:
+      - REDMINE_DB_POSTGRES=db
+      - REDMINE_DB_USERNAME=${DB_USER}
+      - REDMINE_DB_PASSWORD=${DB_PASS}
+      - REDMINE_DB_DATABASE=${DB_NAME}
+      - REDMINE_HTTPS=true
+
+networks:
+  lan:
+    external:
+      name: ${DCAPE_NET}
+
