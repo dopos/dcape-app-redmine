@@ -28,7 +28,6 @@
 * Run "Test delivery" (config sample will be created in dcape)
 * Edit and save config (enable deploy etc)
 * Run "Test delivery" again (app will be installed and started on webhook host)
-* Fork [dopos/dcape-dns-config](https://github/com/dopos/dcape-dns-config) and cook your zones
 
 See also: [Deploy setup](https://github.com/dopos/dcape/blob/master/DEPLOY.md) (in Russian)
 
