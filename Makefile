@@ -15,10 +15,14 @@ DB_SOURCE          ?=
 # Site host
 APP_SITE           ?= rm.dev.lan
 
+PLUGINS            ?= tags
+
+PLUGINS_PATH       ?= plugins
+
 # Docker image name
 IMAGE              ?= redmine
 # Docker image tag
-IMAGE_VER         ?= 3.4.3
+IMAGE_VER         ?= 3.4.4-passenger
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
@@ -147,6 +151,11 @@ db-drop: docker-wait
 
 psql: docker-wait
 	@docker exec -it $$DCAPE_DB psql -U $$DB_USER -d $$DB_NAME
+
+# ------------------------------------------------------------------------------
+
+plugins: CMD=run www /bin/sh /opt/install_plugins.sh $(PLUGINS)
+plugins: dc
 
 # ------------------------------------------------------------------------------
 

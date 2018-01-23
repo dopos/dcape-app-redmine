@@ -13,7 +13,9 @@ services:
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ../../data/redmine:/usr/src/redmine/files
+      - ../../data/redmine/files:/usr/src/redmine/files
+      - ../../data/redmine/plugins:/usr/src/redmine/plugins
+      - ./install_plugins.sh:/opt/install_plugins.sh:ro
     environment:
       - REDMINE_DB_POSTGRES=db
       - REDMINE_DB_USERNAME=${DB_USER}
