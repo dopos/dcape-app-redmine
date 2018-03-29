@@ -15,16 +15,23 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ../../data/redmine/files:/usr/src/redmine/files
       - ../../data/redmine/plugins:/usr/src/redmine/plugins
-      - ./install_plugins.sh:/opt/install_plugins.sh:ro
     environment:
       - REDMINE_DB_POSTGRES=db
       - REDMINE_DB_USERNAME=${DB_USER}
       - REDMINE_DB_PASSWORD=${DB_PASS}
       - REDMINE_DB_DATABASE=${DB_NAME}
       - REDMINE_HTTPS=true
-
+      - REDMINE_NO_DB_MIGRATE=${REDMINE_NO_DB_MIGRATE}
+      - REDMINE_INIT_PLUGINS_MIGRATE=${REDMINE_INIT_PLUGINS_MIGRATE}
+      - REDMINE_PLUGINS_UPDATE=${REDMINE_PLUGINS_UPDATE}
+      - EMAIL_CONFIG_DELIVERY_METHOD=${REDMINE_EMAIL_DELIVERY_METHOD}
+      - EMAIL_CONFIG_ADDRESS=${REDMINE_EMAIL_ADDRESS}
+      - EMAIL_CONFIG_PORT=${REDMINE_EMAIL_PORT}
+      - EMAIL_CONFIG_DOMAIN=${REDMINE_EMAIL_DOMAIN}
+      - EMAIL_CONFIG_AUTHENTICATION=${REDMINE_EMAIL_AUTHENTICATION}
+      - EMAIL_CONFIG_USER_NAME=${REDMINE_EMAIL_USER_NAME}
+      - EMAIL_CONFIG_PASSWORD=${REDMINE_EMAIL_PASSWORD}
 networks:
   lan:
     external:
       name: ${DCAPE_NET}
-
