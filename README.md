@@ -8,11 +8,11 @@
 [4]: https://img.shields.io/github/license/dopos/dcape-app-redmine.svg
 [5]: LICENSE
 
-[Redmine](https://en.wikipedia.org/wiki/Redmine) application package with postgresql backend for [dcape](https://github.com/dopos/dcape).
+[Redmine](https://en.wikipedia.org/wiki/Redmine) application configuration for set: plugins, passenger, configured postgresql backend for automated deploy of [dcape](https://github.com/dopos/dcape).
 
 ## Docker image used
 
-* [redmine](https://hub.docker.com/_/redmine/) official image
+* [redmine](https://hub.docker.com/r/abhinand12/redmine3.4-plugins-passenger/) special builded image
 
 ## Requirements
 
@@ -29,10 +29,13 @@
 * Edit and save config (enable deploy etc)
 * Run "Test delivery" again (app will be installed and started on webhook host)
 
+Redmine can be deployed from a special docker-image with some plugins.
+See detail in [dockerfile-redmine](https://github.com/dopos/dockerfile-redmine).
+
 See also: [Deploy setup](https://github.com/dopos/dcape/blob/master/DEPLOY.md) (in Russian)
 
 ## License
 
 The MIT License (MIT), see [LICENSE](LICENSE).
 
-Copyright (c) 2017 Alexey Kovrizhkin <lekovr+dopos@gmail.com>
+2018 Maxim Danilin <zan@whiteants.net>

@@ -1,4 +1,11 @@
-# dcape-app-mattermost Makefile
+# dcape-app-redmine Makefile
+# the Makefile config and start special docker image with redmine3.4.4, plugins, passenger5.1.12 as a service with docker-compose for dcape server
+
+# broken installations plugins: issues_tree smart_issues_sort postgresql_search
+#smart_issues_sort last commit more 3 years later
+#vote_on_issue install ok, but not vork - have syntx error with database work
+# tags and redmineup_tags - conflicted, must install only one, now select redmineup_tags becouse other plugins from redmineup.com use
+
 
 SHELL               = /bin/bash
 CFG                ?= .env
@@ -15,14 +22,17 @@ DB_SOURCE          ?=
 # Site host
 APP_SITE           ?= rm.dev.lan
 
-PLUGINS            ?= tags
-
 PLUGINS_PATH       ?= plugins
 
+#Plugin list for instal if redmine start first time (the name of the plugin must the same as the name of the plugin directory in the image)
+PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists \
+  redmine_theme_changer redmine_user_specific_theme view_customize \
+  redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
+
 # Docker image name
-IMAGE              ?= redmine
+IMAGE              ?= abhinand12/redmine3.4-plugins-passenger
 # Docker image tag
-IMAGE_VER         ?= 3.4.4-passenger
+IMAGE_VER          ?= 01
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
@@ -31,6 +41,18 @@ DCAPE_PROJECT_NAME ?= dcape
 DCAPE_NET          ?= $(DCAPE_PROJECT_NAME)_default
 # dcape postgresql container name
 DCAPE_DB           ?= $(DCAPE_PROJECT_NAME)_db_1
+
+# set to true for need update exist or install new plugins without remove existing plugins
+REDMINE_PLUGINS_UPDATE_ENV ?=
+
+#environments for SMTP email configuration
+REDMINE_EMAIL_DELIVERY_METHOD = :smtp
+REDMINE_EMAIL_ADDRESS         = localhost
+REDMINE_EMAIL_PORT            = 25
+REDMINE_EMAIL_AUTHENTICATION  = :login
+REDMINE_EMAIL_DOMAIN          = localhost
+REDMINE_EMAIL_USER_NAME       =
+REDMINE_EMAIL_PASSWORD        =
 
 # Docker-compose image tag
 DC_VER             ?= 1.14.0
@@ -64,6 +86,18 @@ DCAPE_NET=$(DCAPE_NET)
 # dcape postgresql container name
 DCAPE_DB=$(DCAPE_DB)
 
+# Plugins list
+PLUGINS_LIST=$(PLUGINS_LIST)
+
+#environments for SMTP email configuration
+REDMINE_EMAIL_DELIVERY_METHOD=$(REDMINE_EMAIL_DELIVERY_METHOD)
+REDMINE_EMAIL_ADDRESS=$(REDMINE_EMAIL_ADDRESS)
+REDMINE_EMAIL_PORT=$(REDMINE_EMAIL_PORT)
+REDMINE_EMAIL_AUTHENTICATION=$(REDMINE_EMAIL_AUTHENTICATION)
+REDMINE_EMAIL_DOMAIN=$(REDMINE_EMAIL_DOMAIN)
+REDMINE_EMAIL_USER_NAME=$(REDMINE_EMAIL_USER_NAME)
+REDMINE_EMAIL_PASSWORD=$(REDMINE_EMAIL_PASSWORD)
+
 endef
 export CONFIG_DEF
 
@@ -74,9 +108,9 @@ export
 
 all: help
 
+
 # ------------------------------------------------------------------------------
 # webhook commands
-
 start: db-create up
 
 start-hook: db-create reup
@@ -87,7 +121,6 @@ update: reup
 
 # ------------------------------------------------------------------------------
 # docker commands
-
 ## старт контейнеров
 up:
 up: CMD=up -d
@@ -100,9 +133,8 @@ reup: dc
 
 ## остановка и удаление всех контейнеров
 down:
-down: CMD=rm -f -s
+down: CMD=down -v
 down: dc
-
 
 # Wait for postgresql container start
 docker-wait:
@@ -131,34 +163,26 @@ endef
 export IMPORT_SCRIPT
 
 # create user, db and load dump
+# check DATABASE exist and set of docker-compose.yml variable via .env
 db-create: docker-wait
 	@echo "*** $@ ***" ; \
 	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$DB_USER\" WITH PASSWORD '$$DB_PASS';" || true ; \
 	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$DB_NAME\" OWNER \"$$DB_USER\";" || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] ; then \
-	  if [[ "$$DB_SOURCE" ]] ; then \
+		if [[ "$$DB_SOURCE" ]] ; then \
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
 	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
 	    || true ; \
-	  fi \
+  	fi  \
 	fi
 
 ## drop database and user
 db-drop: docker-wait
 	@echo "*** $@ ***"
-	@docker exec -it $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$DB_NAME\";" || true
-	@docker exec -it $$DCAPE_DB psql -U postgres -c "DROP USER \"$$DB_USER\";" || true
-
-psql: docker-wait
-	@docker exec -it $$DCAPE_DB psql -U $$DB_USER -d $$DB_NAME
+	@docker exec -i $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$DB_NAME\";" || true
+	@docker exec -i $$DCAPE_DB psql -U postgres -c "DROP USER \"$$DB_USER\";" || true
 
 # ------------------------------------------------------------------------------
-
-plugins: CMD=run www /bin/sh /opt/install_plugins.sh $(PLUGINS)
-plugins: dc
-
-# ------------------------------------------------------------------------------
-
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
 ## run docker-compose
@@ -171,7 +195,6 @@ dc: docker-compose.yml
 	  -p $$PROJECT_NAME \
 	  $(CMD)
 
-# ------------------------------------------------------------------------------
 
 $(CFG):
 	@[ -f $@ ] || { echo "$$CONFIG_DEF" > $@ ; echo "Warning: Created default $@" ; }
