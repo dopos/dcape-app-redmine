@@ -26,13 +26,13 @@ PLUGINS_PATH       ?= plugins
 
 #Plugin list for instal if redmine start first time (the name of the plugin must the same as the name of the plugin directory in the image)
 PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists \
-  redmine_theme_changer redmine_user_specific_theme view_customize \
-  redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
+ redmine_theme_changer redmine_user_specific_theme view_customize \
+ redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
 
 # Docker image name
-IMAGE              ?= abhinand12/redmine3.4-plugins-passenger
+IMAGE              ?= dopos/redmine
 # Docker image tag
-IMAGE_VER          ?= 01
+IMAGE_VER          ?= 0.2
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
@@ -108,7 +108,6 @@ export
 
 all: help
 
-
 # ------------------------------------------------------------------------------
 # webhook commands
 start: db-create up
@@ -169,11 +168,11 @@ db-create: docker-wait
 	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$DB_USER\" WITH PASSWORD '$$DB_PASS';" || true ; \
 	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$DB_NAME\" OWNER \"$$DB_USER\";" || db_exists=1 ; \
 	if [[ ! "$$db_exists" ]] ; then \
-		if [[ "$$DB_SOURCE" ]] ; then \
+	  if [[ "$$DB_SOURCE" ]] ; then \
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
 	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
 	    || true ; \
-  	fi  \
+	  fi  \
 	fi
 
 ## drop database and user
