@@ -26,8 +26,8 @@ PLUGINS_PATH       ?= plugins
 
 #Plugin list for instal if redmine start first time (the name of the plugin must the same as the name of the plugin directory in the image)
 PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists \
-	redmine_theme_changer redmine_user_specific_theme view_customize \
-	redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
+ redmine_theme_changer redmine_user_specific_theme view_customize \
+ redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
 
 # Docker image name
 IMAGE              ?= dopos/redmine
