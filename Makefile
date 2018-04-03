@@ -30,9 +30,9 @@ PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists
   redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
 
 # Docker image name
-IMAGE              ?= abhinand12/redmine3.4-plugins-passenger
+IMAGE              ?= dopos/redmine
 # Docker image tag
-IMAGE_VER          ?= 01
+IMAGE_VER          ?= 0.2
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
@@ -138,9 +138,9 @@ down: dc
 
 # Wait for postgresql container start
 docker-wait:
-	@echo -n "Checking PG is ready..."
-	@until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == healthy ]] ; do sleep 1 ; echo -n "." ; done
-	@echo "Ok"
+  @echo -n "Checking PG is ready..."
+  @until [[ `docker inspect -f "{{.State.Health.Status}}" $$DCAPE_DB` == healthy ]] ; do sleep 1 ; echo -n "." ; done
+  @echo "Ok"
 
 # ------------------------------------------------------------------------------
 # DB operations
@@ -165,45 +165,45 @@ export IMPORT_SCRIPT
 # create user, db and load dump
 # check DATABASE exist and set of docker-compose.yml variable via .env
 db-create: docker-wait
-	@echo "*** $@ ***" ; \
-	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$DB_USER\" WITH PASSWORD '$$DB_PASS';" || true ; \
-	docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$DB_NAME\" OWNER \"$$DB_USER\";" || db_exists=1 ; \
-	if [[ ! "$$db_exists" ]] ; then \
-		if [[ "$$DB_SOURCE" ]] ; then \
-	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
-	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
-	    || true ; \
-  	fi  \
-	fi
+  @echo "*** $@ ***" ; \
+  docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE USER \"$$DB_USER\" WITH PASSWORD '$$DB_PASS';" || true ; \
+  docker exec -i $$DCAPE_DB psql -U postgres -c "CREATE DATABASE \"$$DB_NAME\" OWNER \"$$DB_USER\";" || db_exists=1 ; \
+  if [[ ! "$$db_exists" ]] ; then \
+    if [[ "$$DB_SOURCE" ]] ; then \
+      echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
+      && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
+      || true ; \
+    fi  \
+  fi
 
 ## drop database and user
 db-drop: docker-wait
-	@echo "*** $@ ***"
-	@docker exec -i $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$DB_NAME\";" || true
-	@docker exec -i $$DCAPE_DB psql -U postgres -c "DROP USER \"$$DB_USER\";" || true
+  @echo "*** $@ ***"
+  @docker exec -i $$DCAPE_DB psql -U postgres -c "DROP DATABASE \"$$DB_NAME\";" || true
+  @docker exec -i $$DCAPE_DB psql -U postgres -c "DROP USER \"$$DB_USER\";" || true
 
 # ------------------------------------------------------------------------------
 # $$PWD используется для того, чтобы текущий каталог был доступен в контейнере по тому же пути
 # и относительные тома новых контейнеров могли его использовать
 ## run docker-compose
 dc: docker-compose.yml
-	@docker run --rm  \
-	  -v /var/run/docker.sock:/var/run/docker.sock \
-	  -v $$PWD:$$PWD \
-	  -w $$PWD \
-	  docker/compose:$(DC_VER) \
-	  -p $$PROJECT_NAME \
-	  $(CMD)
+  @docker run --rm  \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v $$PWD:$$PWD \
+    -w $$PWD \
+    docker/compose:$(DC_VER) \
+    -p $$PROJECT_NAME \
+    $(CMD)
 
 
 $(CFG):
-	@[ -f $@ ] || { echo "$$CONFIG_DEF" > $@ ; echo "Warning: Created default $@" ; }
+  @[ -f $@ ] || { echo "$$CONFIG_DEF" > $@ ; echo "Warning: Created default $@" ; }
 
 # ------------------------------------------------------------------------------
 
 ## List Makefile targets
 help:
-	@grep -A 1 "^##" Makefile | less
+  @grep -A 1 "^##" Makefile | less
 
 ##
 ## Press 'q' for exit
