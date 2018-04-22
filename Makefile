@@ -30,7 +30,7 @@ PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists
 # Docker image name
 IMAGE              ?= dopos/redmine
 # Docker image tag
-IMAGE_VER          ?= 04
+IMAGE_VER          ?= 0.4
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
