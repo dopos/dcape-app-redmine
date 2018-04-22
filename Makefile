@@ -171,7 +171,7 @@ db-create: docker-wait
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
 	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
 	    || true ; \
-  	fi  \
+  	  fi  \
 	fi
 
 ## drop database and user
