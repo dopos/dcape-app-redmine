@@ -22,17 +22,15 @@ DB_SOURCE          ?=
 # Site host
 APP_SITE           ?= rm.dev.lan
 
-PLUGINS_PATH       ?= plugins
-
 #Plugin list for instal if redmine start first time (the name of the plugin must the same as the name of the plugin directory in the image)
-PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists \
- redmine_theme_changer redmine_user_specific_theme view_customize \
- redmine_wiki_extensions issue_id redmine_issue_todo_lists redhopper
+PLUGINS_LIST=sidebar_hide redmine_fixed_header redmine_drawio redmine_wiki_lists  redmine_zenedit redmineup_tags \
+  redmine_theme_changer a_common_libs unread_issues usability redmine_user_specific_theme view_customize \
+  redmine_wiki_extensions issue_id redmine_issue_todo_lists easy_mindmup easy_wbs redhopper
 
 # Docker image name
 IMAGE              ?= dopos/redmine
 # Docker image tag
-IMAGE_VER          ?= 0.2
+IMAGE_VER          ?= 0.4
 # Docker-compose project name (container name prefix)
 PROJECT_NAME       ?= rm
 # dcape container name prefix
@@ -108,6 +106,7 @@ export
 
 all: help
 
+
 # ------------------------------------------------------------------------------
 # webhook commands
 start: db-create up
@@ -172,7 +171,7 @@ db-create: docker-wait
 	    echo "$$IMPORT_SCRIPT" | docker exec -i $$DCAPE_DB bash -s - $$DB_NAME $$DB_USER $$DB_PASS $$DB_SOURCE \
 	    && docker exec -i $$DCAPE_DB psql -U postgres -c "COMMENT ON DATABASE \"$$DB_NAME\" IS 'SOURCE $$DB_SOURCE';" \
 	    || true ; \
-	  fi  \
+  	  fi  \
 	fi
 
 ## drop database and user

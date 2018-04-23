@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.2'
 
 services:
 
@@ -15,6 +15,9 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ../../data/redmine/files:/usr/src/redmine/files
       - ../../data/redmine/plugins:/usr/src/redmine/plugins
+      - ../../data/redmine/tmp:/usr/src/redmine/tmp
+      - ../../data/redmine/public:/usr/src/redmine/public
+      - ../../data/redmine/db:/usr/src/redmine/db
     environment:
       - REDMINE_DB_POSTGRES=db
       - REDMINE_DB_USERNAME=${DB_USER}
